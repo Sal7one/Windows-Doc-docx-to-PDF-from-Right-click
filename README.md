@@ -21,6 +21,10 @@ To convert a Word document to PDF, simply right-click on the file, select "Conve
 ![Context Menu Image](contextMenu.png)
 
 
+## Build
+
+You can build the project by installing the requirements.txt, and running build.py
+
 ## Notes
 
 - If you prefer to run the Python script directly you need to have administrator privileges for the script to work properly.
