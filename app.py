@@ -1,12 +1,10 @@
 
 import sys
-import os
-from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QProgressBar, QFileDialog)
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QPushButton, QLabel)
+from PyQt5.QtCore import Qt, QSharedMemory, QSystemSemaphore
 from context_menu import add_context_menu, remove_context_menu
 
 label = "Convert to PDF"
-python_executable = sys.executable if os.path.exists(sys.executable) else "python"
 
 class GlossyGUI(QWidget):
     def __init__(self):
@@ -68,17 +66,32 @@ class GlossyGUI(QWidget):
             self.status_label.setText(rf"Could not find {label} in the context menu || Already removed or you didn't install in the first place")
 
 def main():
- 
-    app = QApplication.instance()
-    if app is None:
-        app = QApplication(sys.argv)
-
+    app = QApplication(sys.argv)
     app.setAttribute(Qt.AA_UseHighDpiPixmaps)
     app.setStyle('Fusion')
-    gui = GlossyGUI()
-    gui.show()
 
-    sys.exit(app.exec_())
+    # Check if an instance is already running
+    semaphore = QSystemSemaphore("GlossyGUI_Semaphore", 1)
+    semaphore.acquire()
+
+    shared_mem = QSharedMemory("GlossyGUI_SharedMemory")
+    already_running = False
+
+    if shared_mem.attach():
+        already_running = True
+    else:
+        shared_mem.create(1)
+        already_running = False
+
+    semaphore.release()
+
+    if already_running:
+        print("An instance of the application is already running.")
+        sys.exit(1)
+    else:
+        gui = GlossyGUI()
+        gui.show()
+        sys.exit(app.exec_())
 
 if __name__ == '__main__':
     main()

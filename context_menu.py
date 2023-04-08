@@ -36,7 +36,7 @@ def get_python_path():
     if getattr(sys, 'frozen', False):
         command = 'where' if os.name == 'nt' else 'which'
         try:
-            python_paths = subprocess.check_output([command, 'python'], universal_newlines=True).strip().split('\n')
+            python_paths = subprocess.check_output([command, 'pythonw'], universal_newlines=True).strip().split('\n')
             # in windows you can get multiple paths to python interpreter choose the one that doesn't redirect to windows apps
             if python_paths:
                 return [element for element in python_paths if "WindowsApps" not in element][0]
@@ -54,7 +54,7 @@ def add_context_menu():
     utils_path = os.path.abspath('scripts')
     script_path = os.path.join(utils_path, 'convertToPDF.py')
 
-    command = f'{python_executable} "{script_path}" "%1"'
+    command = f'{python_executable} "{script_path}" "%1"' # %1 gives file path, registry rules
 
     file_types = ['.doc', '.docx']
 
