@@ -1,2 +1,2 @@
 pywin32
-winreg
+pyuac

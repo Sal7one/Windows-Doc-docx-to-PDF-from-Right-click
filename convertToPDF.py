@@ -10,14 +10,18 @@ def convert_to_pdf():
 
     # Create a Word Application object and open the file
     word = win32com.client.Dispatch('Word.Application')
-    word.Visible = False 
+    word.Visible = False
     directory_path = sys.argv[1]
     complete_file_path_with_extension = sys.argv[2]
-    doc = word.Documents.Open(complete_file_path_with_extension)
+    
+    doc = word.Documents.Open(f"{complete_file_path_with_extension}")
 
     # Save the file as a PDF in the specified directory
     file_name, extension = os.path.splitext(complete_file_path_with_extension)
-    doc.SaveAs2(f"{directory_path}\\{file_name}.pdf", FileFormat=17)
+
+    # 17 pdf ref https://docs.microsoft.com/en-us/office/vba/api/word.wdsaveformat
+    fileName = os.path.join(directory_path, file_name + ".pdf")
+    doc.SaveAs2(fileName, FileFormat=17)
 
     # Close the file and quit Word
     doc.Close()

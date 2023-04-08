@@ -1,6 +1,8 @@
 import winreg
 import os
+from pyuac import main_requires_admin
 
+@main_requires_admin
 def removeFromContextMenu():
     # Get the HKEY_CLASSES_ROOT key
     root = winreg.ConnectRegistry(None, winreg.HKEY_CLASSES_ROOT)

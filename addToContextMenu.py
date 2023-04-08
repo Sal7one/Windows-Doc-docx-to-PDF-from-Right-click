@@ -1,7 +1,9 @@
 import winreg
 import os
 import random
+from pyuac import main_requires_admin
 
+@main_requires_admin
 def editWindowsRegistry():
     # Get the current working directory and the path to the Python script
     current_dir = os.getcwd()
