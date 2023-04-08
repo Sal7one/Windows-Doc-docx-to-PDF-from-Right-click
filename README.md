@@ -22,7 +22,10 @@ App UI            | Context Menu
 
 ## Build
 
-You can build the project by installing the requirements.txt and running build.py.
+You can build the project by installing the requirements.txt and running `build.py`.
+
+
+If you just want the scripts and how I apporached the registry and not The GUI, Check the raw scripts folder
 
 ## Notes
 
