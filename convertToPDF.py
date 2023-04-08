@@ -1,31 +1,35 @@
 import win32com.client
 import sys
 import os
+import ctypes
 
-def convert_to_pdf():
-    # Check if the script was called with the correct number of arguments
-    if len(sys.argv) < 3:
-        print("Please provide a directory path and a complete file path with extension.")
+def convert_to_pdf(docx_path):
+    # Check if the file path is valid and has the correct extension
+    if not os.path.exists(docx_path):
+        directRunMessage()
         sys.exit(1)
 
     # Create a Word Application object and open the file
     word = win32com.client.Dispatch('Word.Application')
     word.Visible = False
-    directory_path = sys.argv[1]
-    complete_file_path_with_extension = sys.argv[2]
-    
-    doc = word.Documents.Open(f"{complete_file_path_with_extension}")
 
-    # Save the file as a PDF in the specified directory
-    file_name, extension = os.path.splitext(complete_file_path_with_extension)
+    doc = word.Documents.Open(docx_path)
 
-    # 17 pdf ref https://docs.microsoft.com/en-us/office/vba/api/word.wdsaveformat
-    fileName = os.path.join(directory_path, file_name + ".pdf")
-    doc.SaveAs2(fileName, FileFormat=17)
+    # Save the file as a PDF in the same directory
+    file_name, extension = os.path.splitext(docx_path)
+    pdf_path = os.path.join(file_name + ".pdf")
+    doc.SaveAs2(pdf_path, FileFormat=17)  # 17 is the constant for PDF format in Word
 
     # Close the file and quit Word
     doc.Close()
     word.Quit()
 
+def directRunMessage():
+    ctypes.windll.user32.MessageBoxW(0, f"This script is supposed to run from a docx | doc file context menu (No action)", "Success", 0x40 | 0x1)
+
 if __name__ == "__main__":
-    convert_to_pdf()
+    if len(sys.argv) > 1:
+        docx_path = sys.argv[1]
+        convert_to_pdf(docx_path)
+    else:
+        directRunMessage()

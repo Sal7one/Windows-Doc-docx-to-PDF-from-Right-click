@@ -1,38 +1,34 @@
-import winreg
 import os
+import sys
+import ctypes
+import winreg
 from pyuac import main_requires_admin
 
 @main_requires_admin
-def editWindowsRegistry():
-    # Get the current working directory and the path to the Python script
-    commandLabel = "Convert file to PDF"
-    scriptTitle = "convertToPDF.py"
-    currentDir = os.getcwd()
-    scriptPath = os.path.join(currentDir, scriptTitle)
-    docxScriptsPath = ".docx\Word.Document.12\ShellNew"
+def create_registry_key(key, sub_key, value):
+    try:
+        with winreg.OpenKey(key, sub_key, 0, winreg.KEY_SET_VALUE) as key_handle:
+            winreg.SetValueEx(key_handle, '', 0, winreg.REG_SZ, value)
+    except FileNotFoundError:
+        with winreg.CreateKey(key, sub_key) as key_handle:
+            winreg.SetValueEx(key_handle, '', 0, winreg.REG_SZ, value)
 
-    root = winreg.ConnectRegistry(None, winreg.HKEY_CLASSES_ROOT)
-    key = winreg.OpenKeyEx(root, docxScriptsPath)
-    key = winreg.OpenKey(winreg.HKEY_CLASSES_ROOT, docxScriptsPath,0, winreg.KEY_ALL_ACCESS)
+@main_requires_admin
+def main():
+    python_executable = sys.executable
+    script_path = os.path.abspath('convertToPDF.py')
 
-    regShellCommand = f'python "{scriptPath}" %1 %2' # %1 directory path, %2 filepath
-    winreg.SetValueEx(key, commandLabel, 0, winreg.REG_SZ, regShellCommand ) 
+    command = f'"{python_executable}" "{script_path}" "%1" "%2"'
 
-    # Close the keys
-    winreg.CloseKey(key)
-    winreg.CloseKey(root)
+    file_types = ['.doc', '.docx']
 
-def addToContextMenu():
-    if os.path.exists("whoCaresSal7oneHopesThisHelps.txt"):
-        print("Context menu item already added. To remove it, use the remove script.")
-    else:
-        editWindowsRegistry()
-        setRandomNumberFile()
-        print("Context menu item added successfully.")
+    for file_type in file_types:
+        key = winreg.HKEY_CLASSES_ROOT
+        sub_key = rf'SystemFileAssociations\{file_type}\shell\Convert to PDF\command'
 
-def setRandomNumberFile():
-    with open("whoCaresSal7oneHopesThisHelps.txt", "w") as file:
-        file.write("state")
+        create_registry_key(key, sub_key, command)
 
-if __name__ == "__main__":
-    addToContextMenu()
+    ctypes.windll.user32.MessageBoxW(0, "Successfully added 'Convert to PDF' to the context menu for .doc and .docx files.", "Success", 0x40 | 0x1)
+
+if __name__ == '__main__':
+    main()
