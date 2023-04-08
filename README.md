@@ -4,7 +4,7 @@
 This is a Python program that adds an option to the Windows context menu for converting Microsoft Word (.doc, .docx) files to PDF format. The program uses the win32com library to interact with Microsoft Word and convert the files to PDF directly from the context menu.
 
 ## How to Use
-- **Have Python 3 installed and in Path (Required)**
+- **Have Python 3 installed and in Path. (Required)**
 - Download the zip file from the Release page.
 - Extract the zip file to a location of your choice.
 - Run the app.exe file as an administrator.
@@ -25,6 +25,10 @@ App UI            | Context Menu
 You can build the project by installing the requirements.txt and running build.py.
 
 ## Notes
+
+- This is a windows only solution.
+
+- It requires both MS office and Python 3 to be installed.
 
 - If you prefer to run the Python script directly, you need to have administrator privileges for the script to work properly.
 
