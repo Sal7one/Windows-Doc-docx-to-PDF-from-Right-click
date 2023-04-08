@@ -1,10 +1,12 @@
+
 import sys
 import os
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QProgressBar, QFileDialog)
-from PyQt5.QtCore import Qt, QProcess
+from PyQt5.QtCore import Qt
+from context_menu import add_context_menu, remove_context_menu
 
 label = "Convert to PDF"
-python_executable = sys.executable
+python_executable = sys.executable if os.path.exists(sys.executable) else "python"
 
 class GlossyGUI(QWidget):
     def __init__(self):
@@ -54,30 +56,19 @@ class GlossyGUI(QWidget):
         self.setLayout(layout)
 
     def add_to_context_menu(self):
-            self.process = QProcess(self)
-            self.process.finished.connect(self.on_add_to_context_menu_finished)
-            script_path = os.path.abspath('context_menu.py')
-            self.process.start(python_executable, [script_path, "add"])
-
-    def on_add_to_context_menu_finished(self, exit_code, exit_status):
-        if exit_code == 0:
+        if add_context_menu():
             self.status_label.setText(rf"Successfully added {label} to the context menu for .doc and .docx files.")
         else:
             self.status_label.setText(rf"An error occurred while adding {label} to the context menu.")
 
     def remove_from_context_menu(self):
-            self.process = QProcess(self)
-            self.process.finished.connect(self.on_remove_to_context_menu_finished)
-            script_path = os.path.abspath('context_menu.py')
-            self.process.start(python_executable, [script_path, "remove"])
-
-    def on_remove_to_context_menu_finished(self, exit_code, exit_status):
-        if exit_code == 0:
+        if remove_context_menu():
             self.status_label.setText(rf"Successfully removed {label} from the context menu for .doc and .docx files.")
         else:
             self.status_label.setText(rf"Could not find {label} in the context menu || Already removed or you didn't install in the first place")
 
 def main():
+ 
     app = QApplication.instance()
     if app is None:
         app = QApplication(sys.argv)

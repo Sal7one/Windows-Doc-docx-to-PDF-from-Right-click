@@ -3,3 +3,4 @@ dist
 __pycache__
 glossy
 *.spec
+build.py

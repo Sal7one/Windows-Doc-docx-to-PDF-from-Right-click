@@ -2,6 +2,7 @@ import winreg
 from pyuac import main_requires_admin
 import sys
 import os
+import subprocess
 
 label = "Convert to PDF"
 
@@ -31,11 +32,29 @@ def delete_registry_key(key, sub_key):
         print(e)
         return False
 
-def add_context_menu():
-    python_executable = sys.executable
-    script_path = os.path.abspath('convertToPDF.py')
+def get_python_path():
+    if getattr(sys, 'frozen', False):
+        command = 'where' if os.name == 'nt' else 'which'
+        try:
+            python_paths = subprocess.check_output([command, 'python'], universal_newlines=True).strip().split('\n')
+            # in windows you can get multiple paths to python interpreter choose the one that doesn't redirect to windows apps
+            if python_paths:
+                return [element for element in python_paths if "WindowsApps" not in element][0]
+        except subprocess.CalledProcessError:
+            raise RuntimeError('Python interpreter not found')
+    else:
+        python_path = sys.executable
 
-    command = f'"{python_executable}" "{script_path}" "%1"'
+    return python_path
+
+def add_context_menu():
+    ## because of pyinstaller otherwise use sys.executable
+    python_executable = os.path.join(get_python_path()) 
+    
+    utils_path = os.path.abspath('scripts')
+    script_path = os.path.join(utils_path, 'convertToPDF.py')
+
+    command = f'{python_executable} "{script_path}" "%1"'
 
     file_types = ['.doc', '.docx']
 
@@ -61,21 +80,3 @@ def remove_context_menu():
         success = removeSubKey and removeKey
 
     return success
-
-if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        command = sys.argv[1]
-        if command == "add":
-            result = add_context_menu()
-            exit_code = 0 if result else 1
-        elif command == "remove":
-            result = remove_context_menu()
-            exit_code = 0 if result else 1
-        else:
-            print("Invalid command")
-            exit_code = 1
-    else:
-        print("No command provided")
-        exit_code = 1
-
-    sys.exit(exit_code)
